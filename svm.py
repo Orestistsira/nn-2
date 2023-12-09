@@ -59,7 +59,7 @@ class MySVC:
         n_samples, n_features = x.shape
 
         # Convert labels to {-1, 1}
-        y = np.where(y == 0, -1, 1)
+        # y = np.where(y == 0, -1, 1)
 
         # Initialize weights and bias
         self.W = np.zeros(n_features)
@@ -92,18 +92,24 @@ class MySVC:
 
 
 # Load CIFAR-10 dataset
-x, y = unpickle("cifar-10/data_batch_1")
+x_train_1, y_train_1 = unpickle("cifar-10/data_batch_1")
+x_train_2, y_train_2 = unpickle("cifar-10/data_batch_2")
+x_train_3, y_train_3 = unpickle("cifar-10/data_batch_3")
+x_train_4, y_train_4 = unpickle("cifar-10/data_batch_4")
+x_train_5, y_train_5 = unpickle("cifar-10/data_batch_5")
+
+x_train = np.concatenate([x_train_1, x_train_2, x_train_3, x_train_4, x_train_5])
+y_train = np.concatenate([y_train_1, y_train_2, y_train_3, y_train_4, y_train_5])
+
+x_test, y_test = unpickle("cifar-10/test_batch")
 
 # Extract a subset of the dataset for simplicity
-x, y = filter_samples(x, y)
+x_train, y_train = filter_samples(x_train, y_train)
+x_test, y_test = filter_samples(x_test, y_test)
 
 # Convert labels to {-1, 1}
-y = np.where(y == 0, -1, 1)
-
-print(x.shape)
-
-# Split the dataset into training and testing sets
-x_train, x_test, y_train, y_test = train_test_split(x, y, test_size=0.4, random_state=42)
+y_train = np.where(y_train == 0, -1, 1)
+y_test = np.where(y_test == 0, -1, 1)
 
 # Preprocess the data by scaling features
 # Maybe not needed
