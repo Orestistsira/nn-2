@@ -1,3 +1,4 @@
+import time
 import numpy as np
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import StandardScaler
@@ -71,27 +72,33 @@ class MySVC:
         print('Training...')
 
         for epoch in range(epochs):
-            for i in range(n_samples):
-                if y[i] * self._kernel_func(x[i]) >= 1:
-                    self.W -= learning_rate * (2 * self.C * self.W)
-                else:
-                    self.W -= learning_rate * (2 * self.C * self.W - np.dot(x[i], y[i]))
-                    self.b -= learning_rate * y[i]
+            # for i in range(n_samples):
+            #     if y[i] * self._kernel_func(x[i]) >= 1:
+            #         self.W -= learning_rate * (2 * self.C * self.W)
+            #     else:
+            #         self.W -= learning_rate * (2 * self.C * self.W - np.dot(x[i], y[i]))
+            #         self.b -= learning_rate * y[i]
+
+            scores = self._kernel_func(x)
+            margins = y * scores
+
+            # Update weights and bias together
+            mask = margins < 1
+            self.W -= learning_rate * (2 * self.C * self.W - np.dot(x[mask].T, y[mask]))
+            self.b -= learning_rate * np.sum(mask * y)
 
     def predict(self, x):
         return np.sign(np.dot(x, self.W) - self.b)
 
 
 # Load CIFAR-10 dataset
-x_train_1, y_train_1 = unpickle("cifar-10/data_batch_1")
-x_train_2, y_train_2 = unpickle("cifar-10/data_batch_2")
-
-x = np.concatenate([x_train_1, x_train_2])
-y = np.concatenate([y_train_1, y_train_2])
+x, y = unpickle("cifar-10/data_batch_1")
 
 # Extract a subset of the dataset for simplicity
 x, y = filter_samples(x, y)
-# x, y = x[:1000], y[:1000]
+
+# Convert labels to {-1, 1}
+y = np.where(y == 0, -1, 1)
 
 print(x.shape)
 
@@ -99,15 +106,18 @@ print(x.shape)
 x_train, x_test, y_train, y_test = train_test_split(x, y, test_size=0.4, random_state=42)
 
 # Preprocess the data by scaling features
+# Maybe not needed
 scaler = StandardScaler()
 x_train = scaler.fit_transform(x_train)
 x_test = scaler.transform(x_test)
 
 # Create an SVM model
-svm_model = MySVC(kernel='linear', degree=3)
+svm_model = MySVC(kernel='linear')
 
 # Train the SVM model
+start_time = time.time()
 svm_model.fit(x_train, y_train)
+print('Model successfully trained in %.2fs' % (time.time() - start_time))
 
 # Make predictions on the test set
 y_pred = svm_model.predict(x_test)
