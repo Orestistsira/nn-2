@@ -26,10 +26,33 @@ def filter_samples(X, y, classes=(0, 1)):
 
 
 class MySVC:
-    def __init__(self, C=1.0):
+    def __init__(self, kernel='linear', C=1.0, degree=2, gamma=1.0, coef0=0.0):
+        self.kernel = kernel
         self.C = C
+        self.degree = degree
+        self.gamma = gamma
+        self.coef0 = coef0
         self.W = None
         self.b = None
+
+    def _linear_kernel(self, x):
+        return np.dot(x, self.W) - self.b
+
+    def _poly_kernel(self, x):
+        return (self.gamma * np.dot(x, self.W) - self.b + self.coef0) ** self.degree
+
+    def _rbf_kernel(self, x):
+        return np.exp(-self.gamma * np.linalg.norm(x - self.W) ** 2) - self.b
+
+    def _kernel_func(self, x):
+        if self.kernel == 'linear':
+            return self._linear_kernel(x)
+        elif self.kernel == 'poly':
+            return self._poly_kernel(x)
+        elif self.kernel == 'rbf':
+            return self._rbf_kernel(x)
+        else:
+            raise ValueError("Invalid kernel type. Supported types are 'linear', 'poly' and 'rbf'.")
 
     def fit(self, x, y):
         n_samples, n_features = x.shape
@@ -45,9 +68,11 @@ class MySVC:
         learning_rate = 0.01
         epochs = 1000
 
+        print('Training...')
+
         for epoch in range(epochs):
             for i in range(n_samples):
-                if y[i] * (np.dot(x[i], self.W) - self.b) >= 1:
+                if y[i] * self._kernel_func(x[i]) >= 1:
                     self.W -= learning_rate * (2 * self.C * self.W)
                 else:
                     self.W -= learning_rate * (2 * self.C * self.W - np.dot(x[i], y[i]))
@@ -58,11 +83,15 @@ class MySVC:
 
 
 # Load CIFAR-10 dataset
-x, y = unpickle("cifar-10/data_batch_1")
+x_train_1, y_train_1 = unpickle("cifar-10/data_batch_1")
+x_train_2, y_train_2 = unpickle("cifar-10/data_batch_2")
+
+x = np.concatenate([x_train_1, x_train_2])
+y = np.concatenate([y_train_1, y_train_2])
 
 # Extract a subset of the dataset for simplicity
 x, y = filter_samples(x, y)
-x, y = x[:1000], y[:1000]
+# x, y = x[:1000], y[:1000]
 
 print(x.shape)
 
@@ -75,7 +104,7 @@ x_train = scaler.fit_transform(x_train)
 x_test = scaler.transform(x_test)
 
 # Create an SVM model
-svm_model = MySVC(C=1.0)
+svm_model = MySVC(kernel='linear', degree=3)
 
 # Train the SVM model
 svm_model.fit(x_train, y_train)
