@@ -1,29 +1,4 @@
-import time
 import numpy as np
-from sklearn.model_selection import train_test_split
-from sklearn.preprocessing import StandardScaler
-from sklearn.metrics import accuracy_score
-
-
-def unpickle(file):
-    import pickle
-    with open(file, 'rb') as fo:
-        data = pickle.load(fo, encoding='bytes')
-
-    x = np.array(data[b'data'])
-    y = np.array(data[b'labels'])
-
-    x = x.astype('float32')  # this is necessary for the division below
-    x /= 255
-
-    return x, y
-
-
-def filter_samples(X, y, classes=(0, 1)):
-    mask = np.isin(y, classes)
-    X_filtered = X[mask]
-    y_filtered = y[mask]
-    return X_filtered, y_filtered
 
 
 class MySVC:
@@ -58,9 +33,6 @@ class MySVC:
     def fit(self, x, y):
         n_samples, n_features = x.shape
 
-        # Convert labels to {-1, 1}
-        # y = np.where(y == 0, -1, 1)
-
         # Initialize weights and bias
         self.W = np.zeros(n_features)
         self.b = 0.0
@@ -89,45 +61,3 @@ class MySVC:
 
     def predict(self, x):
         return np.sign(np.dot(x, self.W) - self.b)
-
-
-# Load CIFAR-10 dataset
-x_train_1, y_train_1 = unpickle("cifar-10/data_batch_1")
-x_train_2, y_train_2 = unpickle("cifar-10/data_batch_2")
-x_train_3, y_train_3 = unpickle("cifar-10/data_batch_3")
-x_train_4, y_train_4 = unpickle("cifar-10/data_batch_4")
-x_train_5, y_train_5 = unpickle("cifar-10/data_batch_5")
-
-x_train = np.concatenate([x_train_1, x_train_2, x_train_3, x_train_4, x_train_5])
-y_train = np.concatenate([y_train_1, y_train_2, y_train_3, y_train_4, y_train_5])
-
-x_test, y_test = unpickle("cifar-10/test_batch")
-
-# Extract a subset of the dataset for simplicity
-x_train, y_train = filter_samples(x_train, y_train)
-x_test, y_test = filter_samples(x_test, y_test)
-
-# Convert labels to {-1, 1}
-y_train = np.where(y_train == 0, -1, 1)
-y_test = np.where(y_test == 0, -1, 1)
-
-# Preprocess the data by scaling features
-# Maybe not needed
-scaler = StandardScaler()
-x_train = scaler.fit_transform(x_train)
-x_test = scaler.transform(x_test)
-
-# Create an SVM model
-svm_model = MySVC(kernel='linear')
-
-# Train the SVM model
-start_time = time.time()
-svm_model.fit(x_train, y_train)
-print('Model successfully trained in %.2fs' % (time.time() - start_time))
-
-# Make predictions on the test set
-y_pred = svm_model.predict(x_test)
-
-# Evaluate the accuracy
-accuracy = accuracy_score(y_test, y_pred)
-print(f'Accuracy: {accuracy:.2f}%')
