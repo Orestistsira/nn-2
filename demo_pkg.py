@@ -1,6 +1,7 @@
 import time
 
 import numpy as np
+from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import StandardScaler
 from sklearn.metrics import accuracy_score
 from sklearn.svm import SVC
@@ -11,17 +12,12 @@ import utils
 x_train_1, y_train_1 = utils.unpickle("cifar-10/data_batch_1")
 x_train_2, y_train_2 = utils.unpickle("cifar-10/data_batch_2")
 x_train_3, y_train_3 = utils.unpickle("cifar-10/data_batch_3")
-x_train_4, y_train_4 = utils.unpickle("cifar-10/data_batch_4")
-x_train_5, y_train_5 = utils.unpickle("cifar-10/data_batch_5")
 
-x_train = np.concatenate([x_train_1, x_train_2, x_train_3, x_train_4, x_train_5])
-y_train = np.concatenate([y_train_1, y_train_2, y_train_3, y_train_4, y_train_5])
+x = np.concatenate([x_train_1, x_train_2, x_train_3])
+y = np.concatenate([y_train_1, y_train_2, y_train_3])
 
-x_test, y_test = utils.unpickle("cifar-10/test_batch")
-
-# Extract a subset of the dataset for simplicity
-x_train, y_train = utils.filter_samples(x_train, y_train)
-x_test, y_test = utils.filter_samples(x_test, y_test)
+# Split the dataset into training and testing sets
+x_train, x_test, y_train, y_test = train_test_split(x, y, test_size=0.4, random_state=42)
 
 # Preprocess the data by scaling features
 scaler = StandardScaler()
