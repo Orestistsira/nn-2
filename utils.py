@@ -1,4 +1,5 @@
 import numpy as np
+from matplotlib import pyplot as plt
 
 
 def unpickle(file):
@@ -20,3 +21,22 @@ def filter_samples(X, y, classes=(0, 1)):
     X_filtered = X[mask]
     y_filtered = y[mask]
     return X_filtered, y_filtered
+
+
+def show_image(x, y, prediction):
+    if y == -1:
+        y = 0
+    if prediction == -1:
+        prediction = 0
+
+    classes = ["airplane", "automobile"]
+    plt.figure()
+    im_r = x[0:1024].reshape(32, 32)
+    im_g = x[1024:2048].reshape(32, 32)
+    im_b = x[2048:].reshape(32, 32)
+
+    img = np.dstack((im_r, im_g, im_b))
+    plt.imshow(img)
+    plt.title(f"Label: {classes[y]} Prediction: {classes[prediction]}")
+    plt.axis('off')
+    plt.show()

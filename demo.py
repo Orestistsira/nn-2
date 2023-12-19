@@ -22,9 +22,6 @@ x_test, y_test = utils.unpickle("cifar-10/test_batch")
 x_train, y_train = utils.filter_samples(x_train, y_train)
 x_test, y_test = utils.filter_samples(x_test, y_test)
 
-# Split the dataset into training and testing sets
-# x_train, x_test, y_train, y_test = train_test_split(x, y, test_size=0.4, random_state=42)
-
 # Convert labels to {-1, 1}
 y_train = np.where(y_train == 0, -1, 1)
 y_test = np.where(y_test == 0, -1, 1)
