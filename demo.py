@@ -30,13 +30,16 @@ y_train = np.where(y_train == 0, -1, 1)
 y_test = np.where(y_test == 0, -1, 1)
 
 # Preprocess the data by scaling features
-# Maybe not needed
 scaler = StandardScaler()
 x_train = scaler.fit_transform(x_train)
 x_test = scaler.transform(x_test)
 
+C = 1
+degree = 3
+gamma = 3
+
 # Create an SVM model
-svm_model = MySVC(kernel='linear')
+svm_model = MySVC(kernel='poly', C=C, degree=degree, gamma=gamma)
 
 # Train the SVM model
 start_time = time.time()
@@ -48,4 +51,4 @@ y_pred = svm_model.predict(x_test)
 
 # Evaluate the accuracy
 accuracy = accuracy_score(y_test, y_pred)
-print(f'Accuracy: {accuracy:.2f}')
+print(f'Test Accuracy: {accuracy:.2f}')

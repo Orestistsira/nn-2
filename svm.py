@@ -1,4 +1,5 @@
 import numpy as np
+from sklearn.metrics import accuracy_score
 
 
 class MySVC:
@@ -30,19 +31,14 @@ class MySVC:
         else:
             raise ValueError("Invalid kernel type. Supported types are 'linear', 'poly' and 'rbf'.")
 
-    def fit(self, x, y):
+    def fit(self, x, y, epochs=1000, learning_rate=0.01):
         n_samples, n_features = x.shape
 
         # Initialize weights and bias
         self.W = np.zeros(n_features)
         self.b = 0.0
 
-        # Gradient descent optimization
-        learning_rate = 0.01
-        epochs = 1000
-
         print('Training...')
-
         for epoch in range(epochs):
             # for i in range(n_samples):
             #     if y[i] * self._kernel_func(x[i]) >= 1:
@@ -58,6 +54,11 @@ class MySVC:
             mask = margins < 1
             self.W -= learning_rate * (2 * self.C * self.W - np.dot(x[mask].T, y[mask]))
             self.b -= learning_rate * np.sum(mask * y)
+
+        y_pred = self.predict(x)
+        # Evaluate the training accuracy
+        accuracy = accuracy_score(y, y_pred)
+        print(f'Train Accuracy: {accuracy:.2f}')
 
     def predict(self, x):
         return np.sign(np.dot(x, self.W) - self.b)

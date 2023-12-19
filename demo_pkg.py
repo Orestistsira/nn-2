@@ -9,12 +9,7 @@ from sklearn.svm import SVC
 import utils
 
 # Load CIFAR-10 dataset
-x_train_1, y_train_1 = utils.unpickle("cifar-10/data_batch_1")
-x_train_2, y_train_2 = utils.unpickle("cifar-10/data_batch_2")
-x_train_3, y_train_3 = utils.unpickle("cifar-10/data_batch_3")
-
-x = np.concatenate([x_train_1, x_train_2, x_train_3])
-y = np.concatenate([y_train_1, y_train_2, y_train_3])
+x, y = utils.unpickle("cifar-10/data_batch_1")
 
 # Split the dataset into training and testing sets
 x_train, x_test, y_train, y_test = train_test_split(x, y, test_size=0.4, random_state=42)
@@ -25,7 +20,7 @@ x_train = scaler.fit_transform(x_train)
 x_test = scaler.transform(x_test)
 
 # Create an SVM model
-svm_model = SVC(kernel='linear', C=1.0)
+svm_model = SVC()
 # svm_model = SVC(kernel='poly', degree=2, coef0=1.0)
 # svm_model = SVC(kernel='rbf')
 
